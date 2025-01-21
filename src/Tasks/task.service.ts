@@ -30,8 +30,9 @@ export class TaskService {
       console.error(`Category ${category} not found.`);
       return;
     }
+    const maxId = Math.max(...this.tasks.map((task) => task.id));
     this.tasks.push({
-      id: this.tasks.length + 1,
+      id: maxId + 1,
       name,
       description,
       category: findCategory,
