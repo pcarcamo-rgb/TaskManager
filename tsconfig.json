@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "module": "ESNext", // Usa ESNext para soporte ESM
+    "target": "ESNext", // Compila al estándar más reciente
+    "moduleResolution": "node", // Resolución de módulos basada en Node.js
+    "outDir": "./dist", // Directorio de salida
+    "esModuleInterop": true, // Permite interoperabilidad con CommonJS
+    "forceConsistentCasingInFileNames": true,
+    "strict": true, // Activa todas las verificaciones estrictas
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
