@@ -28,9 +28,8 @@ program
 
     taskService.categories.forEach((category) => {
       table.push([chalk.blue(category.id), category.name]);
-
-      console.log(table.toString());
     });
+    console.log(table.toString());
   });
 
 program
