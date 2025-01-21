@@ -5,6 +5,7 @@ import { TaskService } from "./Tasks/task.service.js";
 import figlet from "figlet";
 import chalk from "chalk";
 import wrapAnsi from "wrap-ansi";
+import { TaskStatus } from "./Tasks/interfaces/task.interface.js";
 
 console.log(figlet.textSync("Task Manager"));
 
@@ -15,6 +16,22 @@ program
   .name("Pablo Task Manager")
   .version("1.0.0")
   .description("Task Manager CLI");
+
+program
+  .command("cat-list")
+  .description("List all categories")
+  .action(() => {
+    const table = new Table({
+      head: [chalk.blue.bold("ID"), chalk.blue.bold("Name")],
+      colWidths: [5, 20],
+    });
+
+    taskService.categories.forEach((category) => {
+      table.push([chalk.blue(category.id), category.name]);
+
+      console.log(table.toString());
+    });
+  });
 
 program
   .command("add-category")
@@ -46,7 +63,7 @@ program
   .argument("<taskName>", "Name of the task")
   .argument("<categoryName>", "Name of the category")
   .argument("[taskDescription...]", "Description of the task")
-  .action((taskName, taskDescription, categoryName) => {
+  .action((taskName, categoryName, taskDescription) => {
     const description = taskDescription ? taskDescription.join(" ") : "";
     taskService.addTask(taskName, description, categoryName);
   });
@@ -81,10 +98,10 @@ program
     const formatLine = (label: string, value: string) => `${label} ${value}`;
 
     const createdAt = task.createdAt
-      ? new Date(task.createdAt).toISOString()
+      ? new Date(task.createdAt).toISOString().split("T")[0]
       : "N/A";
     const updatedAt = task.updatedAt
-      ? new Date(task.updatedAt).toISOString()
+      ? new Date(task.updatedAt).toISOString().split("T")[0]
       : "N/A";
 
     console.log(`
@@ -95,7 +112,7 @@ ${formatLine(labels.Name, task.name)}
 ${labels.Description}
 ${formattedDescription}
 ${formatLine(labels.Category, task.category.name)}
-${formatLine(labels.Status, task.status.toUpperCase())}
+${formatLine(labels.Status, chalk.inverse(`[ ${task.status.toUpperCase()} ]`))}
 ${formatLine(labels.CreatedAt, createdAt)}
 ${formatLine(labels.UpdatedAt, updatedAt)}
     `);
@@ -107,6 +124,28 @@ program
   .arguments("<id> <description>")
   .action((id, description) => {
     taskService.updateTask(id, description);
+  });
+
+program
+  .command("complete-task")
+  .description("Complete a task")
+  .argument("<id>")
+  .action((id) => {
+    taskService.updateStatusTask(id, TaskStatus.Done);
+  });
+program
+  .command("pending-task")
+  .description("Pending a task")
+  .argument("<id>")
+  .action((id) => {
+    taskService.updateStatusTask(id, TaskStatus.Todo);
+  });
+program
+  .command("progress-task")
+  .description("In Progress a task")
+  .argument("<id>")
+  .action((id) => {
+    taskService.updateStatusTask(id, TaskStatus.InProgress);
   });
 
 program
@@ -142,7 +181,7 @@ program
         chalk.blue.bold("Updated At"),
         chalk.blue.bold("Category"),
       ],
-      colWidths: [5, 20, 40, 10, 25, 25, 20],
+      colWidths: [5, 40, 30, 15, 15, 20, 20],
     });
 
     tasks.forEach((task) => {
